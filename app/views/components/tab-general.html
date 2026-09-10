@@ -1,0 +1,25 @@
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Магазин</th>
+            <th>Ціна</th>
+            <th>Кількість</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="detail in (state.selectedComic.details || []) | startFrom: generalCurrentPage * detailPageSize | limitTo: detailPageSize"
+            ng-click="selectGeneralDetail(detail)"
+            ng-class="{'selected': state.selectedGeneralDetail.id === detail.id}">
+            
+            <td>
+                {{ detail.shopName || (detail.shop && detail.shop.name) || getShopName(detail.shopId) || '—' }}
+            </td>
+            <td>{{ detail.price | currency:'$':2 }}</td>
+            <td>{{ detail.count || detail.quantity || detail.amount || '—' }}</td>
+        </tr>
+
+        <tr ng-if="!(state.selectedComic.details || []).length">
+            <td colspan="3" class="text-center text-muted">Записи відсутні</td>
+        </tr>
+    </tbody>
+</table>

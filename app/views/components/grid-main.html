@@ -1,0 +1,176 @@
+<div ng-controller="ComicController" class="page-layout">
+    <!-- MASTER SECTION -->
+    <section class="master-section">
+        <div class="grid-main">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Назва</th>
+                        <th>Дата видання</th>
+                        <th>Сторінки</th>
+                        <th>Типи</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="comic in comics | startFrom: currentPage * pageSize | limitTo: pageSize" 
+                        ng-click="selectComic(comic)"
+                        ng-class="{'selected': state.selectedComic.id === comic.id}"
+                        style="cursor: pointer;">
+                        <td>{{ comic.title }}</td>
+                        <td>{{ comic.releaseDate | date:'yyyy-MM-dd' }}</td>
+                        <td>{{ comic.pages }}</td>
+                        <td>
+                            <span ng-repeat="type in comic.types">
+                                {{ type.name || type }}<span ng-if="!$last">, </span>
+                            </span>
+                            <span ng-if="!comic.types || !comic.types.length">—</span>
+                        </td>
+                    </tr>
+                    <tr ng-if="!comics.length">
+                        <td colspan="4" class="text-center">Дані відсутні або завантажуються...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="grid-controllers">
+            <div class="grid-buttons">
+                <button type="button" class="btn" ng-click="openMainModal(false)">Add</button>
+                <button type="button" class="btn" ng-click="openMainModal(true)" ng-disabled="!state.selectedComic">Edit</button>
+                <button type="button" class="btn" ng-click="deleteComic()" ng-disabled="!state.selectedComic">Delete</button>
+            </div>
+
+            <!-- Звітний блок ізольовано всередині ReportController -->
+            <div class="master-tools" ng-controller="ReportController">
+                <select id="reports-select" class="form-control" name="report" ng-model="selectedReport" ng-change="onReportChange()">
+                    <option value="" disabled selected>— Оберіть звіт —</option>
+                    <option value="report-sales">Звіт 1</option>
+                </select>
+
+                <select id="actions-select" class="form-control" name="action" ng-model="selectedAction">
+                    <option value="" disabled selected>Дії</option>
+                    <option value="action-generate">Продати найкраще</option>
+                    <option value="action-export-pdf">Щось</option>
+                </select>
+            </div>
+
+            <nav class="pagination-container" aria-label="Пагінація жанрів" ng-if="getTechnicalNumberOfPages() > 1">
+    <ul class="pagination" style="display: flex; list-style: none; padding: 0; margin: 0;">
+        <li class="page-item" ng-class="{'disabled': technicalCurrentPage === 0}">
+            <button type="button" 
+                    class="page-link" 
+                    ng-click="setTechnicalPage(technicalCurrentPage - 1, $event)" 
+                    ng-disabled="technicalCurrentPage === 0">&laquo;</button>
+        </li>
+        
+        <li class="page-item" ng-repeat="page in getTechnicalPagesArray()" ng-class="{'active': technicalCurrentPage === page}">
+            <button type="button" 
+                    class="page-link" 
+                    ng-click="setTechnicalPage(page, $event)">{{ page + 1 }}</button>
+        </li>
+        
+        <li class="page-item" ng-class="{'disabled': technicalCurrentPage >= getTechnicalNumberOfPages() - 1}">
+            <button type="button" 
+                    class="page-link" 
+                    ng-click="setTechnicalPage(technicalCurrentPage + 1, $event)" 
+                    ng-disabled="technicalCurrentPage >= getTechnicalNumberOfPages() - 1">&raquo;</button>
+        </li>
+    </ul>
+</nav>
+        </div>
+    </section>
+
+    <!-- DETAIL SECTION -->
+    <section class="detail-section">
+        <div class="grid-tabs">
+            <button type="button" 
+                    class="tab-btn" 
+                    ng-class="{'active': activeTab === 'general'}" 
+                    ng-click="setTab('general')">
+                Деталі
+            </button>
+            <button type="button" 
+                    class="tab-btn" 
+                    ng-class="{'active': activeTab === 'technical'}" 
+                    ng-click="setTab('technical')">
+                Жанри
+            </button>
+        </div>
+
+        <!-- TAB 1: GENERAL -->
+        <div ng-if="activeTab === 'general'" ng-controller="ComicGeneralController">
+            <div class="grid-details">
+                <div ng-if="state.selectedComic" ng-include="tabTemplates['general']"></div>
+                <div ng-if="!state.selectedComic" class="placeholder">
+                    Оберіть комікс для перегляду деталей
+                </div>
+            </div>
+
+            <div class="grid-controllers" style="display: flex; align-items: center; justify-content: space-between; gap: 15px;">
+                <div class="grid-buttons">
+                    <button type="button" class="btn" ng-click="openDetailModal(false)" ng-disabled="!state.selectedComic">Add</button>
+                    <button type="button" class="btn" ng-click="openDetailModal(true)" ng-disabled="!state.selectedGeneralDetail">Edit</button>
+                    <button type="button" class="btn" ng-click="deleteGeneralDetail()" ng-disabled="!state.selectedGeneralDetail">Delete</button>
+                </div>
+
+                <nav class="pagination-container" aria-label="Пагінація деталей Tab 1" style="margin-left: auto;" ng-if="state.selectedComic && getGeneralNumberOfPages() > 0">
+                    <ul class="pagination" style="display: flex; list-style: none; padding: 0; margin: 0;">
+                        <li class="page-item" ng-class="{'disabled': generalCurrentPage === 0}">
+                            <button class="page-link" ng-click="setGeneralPage(generalCurrentPage - 1)" ng-disabled="generalCurrentPage === 0">&laquo;</button>
+                        </li>
+                        <li class="page-item" ng-repeat="page in getGeneralPagesArray()" ng-class="{'active': generalCurrentPage === page}">
+                            <button class="page-link" ng-click="setGeneralPage(page)">{{ page + 1 }}</button>
+                        </li>
+                        <li class="page-item" ng-class="{'disabled': generalCurrentPage >= getGeneralNumberOfPages() - 1}">
+                            <button class="page-link" ng-click="setGeneralPage(generalCurrentPage + 1)" ng-disabled="generalCurrentPage >= getGeneralNumberOfPages() - 1">&raquo;</button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- МОДАЛКА ДЕТАЛЕЙ -->
+            <div ng-include="'views/modals/modal-detail.html'"></div>
+        </div>
+
+        <!-- TAB 2: TECHNICAL / GENRES -->
+        <div ng-if="activeTab === 'technical'" ng-controller="ComicTechnicalController">
+            <div class="grid-details">
+                <div ng-if="state.selectedComic" ng-include="tabTemplates['technical']"></div>
+                <div ng-if="!state.selectedComic" class="placeholder">
+                    Оберіть комікс для перегляду жанрів
+                </div>
+            </div>
+
+            <div class="grid-controllers" style="display: flex; align-items: center; justify-content: space-between; gap: 15px;">
+                <div class="grid-buttons">
+                    <!-- Окрема кнопка ADD -->
+                    <button type="button" class="btn btn-success" ng-click="openAddGenreModal()" ng-disabled="!state.selectedComic">Add</button>
+                    <!-- Окрема кнопка EDIT -->
+                    <button type="button" class="btn btn-primary" ng-click="openEditGenreModal()" ng-disabled="!state.selectedComic || !state.selectedGenre">Edit</button>
+                    <!-- Кнопка DELETE -->
+                    <button type="button" class="btn btn-danger" ng-click="removeGenre()" ng-disabled="!state.selectedComic || !state.selectedGenre">Delete</button>
+                </div>
+
+                <nav class="pagination-container" aria-label="Пагінація жанрів Tab 2" style="margin-left: auto;" ng-if="state.selectedComic && getTechnicalNumberOfPages() > 0">
+                    <ul class="pagination" style="display: flex; list-style: none; padding: 0; margin: 0;">
+                        <li class="page-item" ng-class="{'disabled': technicalCurrentPage === 0}">
+                            <button class="page-link" ng-click="setTechnicalPage(technicalCurrentPage - 1)" ng-disabled="technicalCurrentPage === 0">&laquo;</button>
+                        </li>
+                        <li class="page-item" ng-repeat="page in getTechnicalPagesArray()" ng-class="{'active': technicalCurrentPage === page}">
+                            <button class="page-link" ng-click="setTechnicalPage(page)">{{ page + 1 }}</button>
+                        </li>
+                        <li class="page-item" ng-class="{'disabled': technicalCurrentPage >= getTechnicalNumberOfPages() - 1}">
+                            <button class="page-link" ng-click="setTechnicalPage(technicalCurrentPage + 1)" ng-disabled="technicalCurrentPage >= getTechnicalNumberOfPages() - 1">&raquo;</button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- МОДАЛКА ЖАНРІВ -->
+            <div ng-include="'views/modals/modal-genres.html'"></div>
+        </div>
+    </section>
+
+    <!-- ГОЛОВНА МОДАЛКА -->
+    <div ng-include="'views/modals/modal-main.html'"></div>
+</div>

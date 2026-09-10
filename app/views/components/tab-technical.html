@@ -1,0 +1,31 @@
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Жанр</th>
+            <th>Дата</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- 1. Змінено масив на state.selectedComic.comicGenre -->
+        <tr ng-repeat="genre in (state.selectedComic.comicGenre || []) | startFrom: technicalCurrentPage * detailPageSize | limitTo: detailPageSize track by genre.name"
+            ng-click="$parent.selectGenre(genre)"
+            ng-class="{'selected': $parent.isGenreSelected(genre)}"
+            style="cursor: pointer;">
+            
+            <!-- 2. Пряме виведення назви genre.name -->
+            <td>
+                {{ genre.name }}
+            </td>
+            
+            <!-- 3. Пряме виведення дати genre.timeAssigmant із форматуванням -->
+            <td>
+                {{ genre.timeAssigmant | date:'dd.MM.yyyy HH:mm' }}
+            </td>
+        </tr>
+        
+        <!-- Перевірка на порожній масив -->
+        <tr ng-if="!(state.selectedComic.comicGenre || []).length">
+            <td colspan="2" class="text-center text-muted">Жанри не вказані</td>
+        </tr>
+    </tbody>
+</table>

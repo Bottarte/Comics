@@ -1,0 +1,33 @@
+<div class="report-container">
+
+    <div ng-if="isLoading" class="status-info">
+        Завантаження даних...
+    </div>
+
+    <div ng-if="errorMessage" class="status-error">
+        {{ errorMessage }}
+    </div>
+
+    <div ng-repeat="group in reportData" class="report-group" ng-if="!isLoading && !errorMessage">
+        <h3 class="report-title">{{ group.typeName }}</h3>
+
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Quantity</th>
+                    <th>SUM</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in group.items">
+                    <td>{{ item.title }}</td>
+                    <td>{{ item.date | date : 'dd.MM.yyyy' }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.totalSum | currency : '$' : 2 }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

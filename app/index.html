@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="comicsApp">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="styles.css">
+        <title>Comics Management</title>
+    </head>
+    <body>
+        <main ng-view></main>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.min.js"></script>
+        <script src="reports/report.service.js"></script>
+        <script src="comics/comic.module.js"></script>
+
+        <script src="app.js"></script>
+
+        <script src="comics/comic-state.service.js"></script>
+        <script src="comics/comic.helper.service.js"></script>
+        <script src="comics/comic.controller.js"></script>
+        <script src="comics/comic-general.controller.js"></script>
+        <script src="comics/comic-technical.controller.js"></script>
+        <script src="reports/report.controller.js"></script>
+        <script src="reports/report.routes.js"></script>
+    </body>
+</html>

@@ -1,0 +1,1 @@
+var app = angular.module('comicsApp', ['ngRoute', 'comicModule', 'reportModule']);

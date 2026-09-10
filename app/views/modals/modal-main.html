@@ -1,0 +1,39 @@
+<div class="modal-backdrop" ng-if="state.modalState.active === 'main'" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+    <div class="modal-content" style="background: #fff; padding: 20px; border-radius: 8px; width: 450px; max-height: 90vh; overflow-y: auto;">
+        <h3>{{ isEditingMain ? 'Редагувати комікс' : 'Додати комікс' }}</h3>
+
+        <form ng-submit="saveMainComic()">
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label>Назва:</label>
+                <input type="text" class="form-control" ng-model="mainFormData.title" required />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label>Дата виходу:</label>
+                <input type="date" class="form-control" ng-model="mainFormData.releaseDate" required />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label>Сторінки:</label>
+                <input type="number" class="form-control" ng-model="mainFormData.pages" required />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label for="mainTypeSelect">Типи:</label>
+                <select id="mainTypeSelect"
+                        multiple 
+                        class="form-control" 
+                        style="height: 90px;"
+                        ng-model="mainFormData.typeIds" 
+                        ng-options="type.id as type.name for type in state.types"
+                        ng-required="true">
+                </select>
+            </div>
+
+            <div class="form-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
+                <button type="submit" class="btn btn-primary" ng-disabled="isSaving">Зберегти</button>
+                <button type="button" class="btn btn-secondary" ng-click="closeModal()">Скасувати</button>
+            </div>
+        </form>
+    </div>
+</div>

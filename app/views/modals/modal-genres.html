@@ -1,0 +1,29 @@
+<div class="modal-backdrop" 
+     ng-if="state.modalState.active === 'genres'" 
+     style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+    
+    <div class="modal-content" style="background: #fff; padding: 20px; border-radius: 8px; width: 400px;">
+        <h3>Керування жанрами коміксу</h3>
+
+        <form ng-submit="saveGenres($event)">
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="editGenreSelect">Оберіть жанри:</label>
+                
+                <select id="editGenreSelect" 
+                        multiple 
+                        class="form-control" 
+                        style="height: 160px; width: 100%;"
+                        ng-model="genreFormData.genreIds" 
+                        ng-options="genre.id as genre.name for genre in state.genres">
+                </select>
+            </div>
+
+            <div class="form-actions" style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="submit" class="btn btn-primary" ng-disabled="isSaving">
+                    {{ isSaving ? 'Збереження...' : 'Зберегти' }}
+                </button>
+                <button type="button" class="btn btn-secondary" ng-click="closeModal()">Скасувати</button>
+            </div>
+        </form>
+    </div>
+</div>
