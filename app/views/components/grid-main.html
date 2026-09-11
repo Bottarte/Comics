@@ -41,42 +41,44 @@
             </div>
 
             <!-- Звітний блок ізольовано всередині ReportController -->
-            <div class="master-tools" ng-controller="ReportController">
-                <select id="reports-select" class="form-control" name="report" ng-model="selectedReport" ng-change="onReportChange()">
-                    <option value="" disabled selected>— Оберіть звіт —</option>
-                    <option value="report-sales">Звіт 1</option>
-                </select>
+            <div class="master-tools">
+    <!-- Блок звітів залишаємо під ReportController -->
+                <div style="display: inline-block;" ng-controller="ReportController">
+                    <select id="reports-select" class="form-control" name="report" ng-model="selectedReport" ng-change="onReportChange()">
+                        <option value="" disabled selected>— Оберіть звіт —</option>
+                        <option value="report-sales">Звіт 1</option>
+                    </select>
+                </div>
 
-                <select id="actions-select" class="form-control" name="action" ng-model="selectedAction">
+                <!-- Селект дій прив'язуємо безпосередньо до ComicController -->
+                <select id="actions-select" 
+                        class="form-control" 
+                        name="action" 
+                        ng-model="selectedAction" 
+                        ng-change="onActionChange()">
                     <option value="" disabled selected>Дії</option>
-                    <option value="action-generate">Продати найкраще</option>
+                    <option value="action-generate">Bestseller</option>
                     <option value="action-export-pdf">Щось</option>
                 </select>
             </div>
 
-            <nav class="pagination-container" aria-label="Пагінація жанрів" ng-if="getTechnicalNumberOfPages() > 1">
-    <ul class="pagination" style="display: flex; list-style: none; padding: 0; margin: 0;">
-        <li class="page-item" ng-class="{'disabled': technicalCurrentPage === 0}">
-            <button type="button" 
-                    class="page-link" 
-                    ng-click="setTechnicalPage(technicalCurrentPage - 1, $event)" 
-                    ng-disabled="technicalCurrentPage === 0">&laquo;</button>
-        </li>
-        
-        <li class="page-item" ng-repeat="page in getTechnicalPagesArray()" ng-class="{'active': technicalCurrentPage === page}">
-            <button type="button" 
-                    class="page-link" 
-                    ng-click="setTechnicalPage(page, $event)">{{ page + 1 }}</button>
-        </li>
-        
-        <li class="page-item" ng-class="{'disabled': technicalCurrentPage >= getTechnicalNumberOfPages() - 1}">
-            <button type="button" 
-                    class="page-link" 
-                    ng-click="setTechnicalPage(technicalCurrentPage + 1, $event)" 
-                    ng-disabled="technicalCurrentPage >= getTechnicalNumberOfPages() - 1">&raquo;</button>
-        </li>
-    </ul>
-</nav>
+            <div ng-include="'views/modals/modal-pages.html'"></div>
+
+            <nav class="pagination-container" aria-label="Пагінація головного списку" ng-if="numberOfPages() > 1">
+                <ul class="pagination" style="display: flex; list-style: none; padding: 0; margin: 0;">
+                    <li class="page-item" ng-class="{'disabled': currentPage === 0}">
+                        <button type="button" class="page-link" ng-click="setPage(currentPage - 1, $event)" ng-disabled="currentPage === 0">&laquo;</button>
+                    </li>
+                    
+                    <li class="page-item" ng-repeat="page in getPagesArray()" ng-class="{'active': currentPage === page}">
+                        <button type="button" class="page-link" ng-click="setPage(page, $event)">{{ page + 1 }}</button>
+                    </li>
+                    
+                    <li class="page-item" ng-class="{'disabled': currentPage >= numberOfPages() - 1}">
+                        <button type="button" class="page-link" ng-click="setPage(currentPage + 1, $event)" ng-disabled="currentPage >= numberOfPages() - 1">&raquo;</button>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </section>
 

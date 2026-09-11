@@ -111,13 +111,11 @@ angular.module('comicModule')
             var comic = ComicState.selectedComic;
             if (!comic) return '—';
 
-            // 1. Пошук дати безпосередньо в об'єкті жанру
             if (typeof genreInput === 'object' && genreInput !== null) {
                 var directDate = genreInput.timeAssigmant || genreInput.timeAssignment || genreInput.TimeAssigmant;
                 if (directDate) return $scope.formatDate(directDate);
             }
-
-            // 2. Пошук дати за ID в загальному списку ComicState.genres
+s
             var rawId = getRawId(genreInput);
             if (rawId && ComicState.genres && ComicState.genres.length) {
                 var foundInState = findInArray(ComicState.genres, function(g) {
@@ -129,7 +127,6 @@ angular.module('comicModule')
                 }
             }
 
-            // 3. Пошук у корінних масивах коміксу з урахуванням пагінації
             var datesArray = comic.timeAssigmants || comic.timeAssignments || comic.TimeAssigmants || [];
             if (Array.isArray(datesArray) && datesArray.length > 0) {
                 var realIndex = ($scope.technicalCurrentPage * $scope.detailPageSize) + index;
@@ -158,16 +155,15 @@ angular.module('comicModule')
         $scope.getTechnicalNumberOfPages = function() {
             var comic = ComicState.selectedComic;
             if (!comic) return 1;
-            
-            // ✅ Оновлено: шукаємо нове поле comicGenre
+
             var genresList = comic.comicGenre || comic.genres || comic.genreIds || [];
             return Math.ceil(genresList.length / $scope.detailPageSize) || 1;
         };
 
         $scope.setTechnicalPage = function(page, $event) {
             if ($event) {
-                $event.preventDefault();  // Зупиняє надсилання форми
-                $event.stopPropagation(); // Зупиняє вспливання події далі
+                $event.preventDefault();
+                $event.stopPropagation();
             }
             var maxPages = $scope.getTechnicalNumberOfPages();
             if (page >= 0 && page < maxPages) {
@@ -217,10 +213,8 @@ angular.module('comicModule')
     var rawFormIds = $scope.genreFormData.genreIds || [];
     var selectedFormIds = rawFormIds.map(function(id) { return String(getRawId(id)); });
 
-    // ✅ FIXED: Зчитаємо поточний список з comic.comicGenre, comic.genres або comic.genreIds
     var rawCurrentList = comic.comicGenre || comic.genres || comic.genreIds || [];
-    
-    // Перетворюємо всі елементи на ID (якщо це об'єкт без id, шукаємо його id за назвою в ComicState.genres)
+
     var currentGenreIds = rawCurrentList.map(function(item) {
         var rawId = getRawId(item);
         if (!rawId && item && item.name && ComicState.genres) {
@@ -256,8 +250,7 @@ angular.module('comicModule')
     ComicService.update(comic.id, payload)
         .then(function(response) {
             comic.genreIds = numericFinalIds;
-            
-            // ✅ FIXED: Перебудовуємо comic.comicGenre для миттєвого оновлення інтерфейсу
+
             if (ComicState.genres && ComicState.genres.length) {
                 comic.comicGenre = ComicState.genres
                     .filter(function(g) { return numericFinalIds.indexOf(Number(g.id)) !== -1; })
@@ -297,7 +290,6 @@ $scope.removeGenre = function() {
     var targetName = (typeof selectedGenre === 'object' && selectedGenre.name) ? selectedGenre.name : null;
     var targetRaw = getRawId(selectedGenre);
 
-    // Якщо це об'єкт жанру з таблиці, у якого немає id, витягуємо id через його name
     if ((targetRaw === null || targetRaw === undefined) && targetName && ComicState.genres) {
         var matchedStateGenre = ComicState.genres.find(function(g) { return g.name === targetName; });
         if (matchedStateGenre) {
@@ -311,7 +303,6 @@ $scope.removeGenre = function() {
 
     if (!confirm('Вилучити цей жанр із коміксу?')) return;
 
-    // ✅ FIXED: Зчитаємо масив з comic.comicGenre, comic.genres або comic.genreIds
     var rawList = comic.comicGenre || comic.genres || comic.genreIds || [];
     var numericUpdatedIds = [];
 
@@ -320,7 +311,6 @@ $scope.removeGenre = function() {
         var currentRawId = getRawId(currentItem);
         var currentName = (typeof currentItem === 'object' && currentItem.name) ? currentItem.name : null;
 
-        // Пошук ID за назвою, якщо у поточного елемента немає ID
         if (!currentRawId && currentName && ComicState.genres) {
             var foundInState = ComicState.genres.find(function(g) { return g.name === currentName; });
             if (foundInState) currentRawId = foundInState.id;

@@ -4,30 +4,44 @@ angular.module('comicModule')
         
         $scope.state = ComicState;
 
-        // --- State Variables ---
+        $scope.selectedAction = '';
+        $scope.showMinPagesModal = false;
+
         $scope.comics = [];
         $scope.activeTab = 'general';
 
-        // Master Grid Pagination
         $scope.currentPage = 0;
         $scope.pageSize = 2;
 
-        // Dynamic Templates
         $scope.tabTemplates = {
             general: 'views/components/tab-general.html',
             technical: 'views/components/tab-technical.html'
         };
 
+        $scope.$on('closeBestsellersModal', function() {
+            $scope.showMinPagesModal = false;
+            $scope.selectedAction = '';
+        });
+
+        $scope.$on('bestsellersUpdated', function() {
+            $scope.showMinPagesModal = false;
+            $scope.selectedAction = '';
+        });
+
         $scope.isEditingMain = false;
         $scope.isSaving = false;
         $scope.mainFormData = { typeIds: [], genreIds: [] };
 
-        // --- Helper Methods ---
+        $scope.onActionChange = function() {
+            if ($scope.selectedAction === 'action-generate') {
+                $scope.showMinPagesModal = true;
+            }
+        };
+
         $scope.setTab = function(tabName) {
             $scope.activeTab = tabName;
         };
 
-        // Єдиний метод для вибору коміксу (синхронізує і $scope, і ComicState)
         $scope.selectComic = function(comic) {
             $scope.selectedComic = comic;
             ComicState.setSelectedComic(comic);
@@ -40,7 +54,6 @@ angular.module('comicModule')
             $scope.isSaving = false;
         };
 
-        // --- Pagination ---
         $scope.numberOfPages = function() {
             return Math.ceil(($scope.comics || []).length / $scope.pageSize) || 1;
         };
@@ -57,7 +70,6 @@ angular.module('comicModule')
             return pages;
         };
 
-        // --- Data Loading ---
         $scope.loadComics = function(keepSelectedComicId) {
             return ComicService.getAll()
                 .then(function(response) {
@@ -67,8 +79,7 @@ angular.module('comicModule')
                         var target = keepSelectedComicId 
                             ? $scope.comics.find(function(c) { return c.id === keepSelectedComicId; }) 
                             : $scope.comics[0];
-                        
-                        // Гарантовано обираємо та записуємо в ComicState
+
                         $scope.selectComic(target || $scope.comics[0]);
                     } else {
                         $scope.selectComic(null);
@@ -77,7 +88,6 @@ angular.module('comicModule')
                 .catch(ComicHelper.handleApiError);
         };
 
-        // Паралельне завантаження довідників через $q.all
         $scope.loadDictionaries = function() {
             return $q.all([
                 ComicService.getShops(),
@@ -90,7 +100,6 @@ angular.module('comicModule')
             }).catch(ComicHelper.handleApiError);
         };
 
-        // --- Master Actions ---
         $scope.openMainModal = function(isEdit) {
             $scope.isSaving = false;
             $scope.isEditingMain = !!isEdit;
@@ -165,8 +174,14 @@ angular.module('comicModule')
             }
         };
 
-        $scope.$on('comic:reload', function(evt, comicId) {
+        $scope.$on('comic:reload', function(comicId) {
             $scope.loadComics(comicId);
+        });
+
+        $scope.$on('bestsellersUpdated', function() {
+            var selected = ComicState.selectedComic || $scope.selectedComic;
+            var currentId = selected ? selected.id : null;
+            $scope.loadComics(currentId);
         });
 
         $scope.init = function() {

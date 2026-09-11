@@ -7,33 +7,45 @@ angular.module('comicModule')
         $scope.detailPageSize = 2;
 
         // --- Допоміжна функція для безпечного витягування масиву ID жанрів ---
-        function extractCurrentGenreIds(comic) {
-            if (!comic) return [];
-            var rawList = comic.genres || comic.genreIds || [];
+        // --- Допоміжна функція для безпечного витягування масиву ID жанрів ---
+function extractCurrentGenreIds(comic) {
+    if (!comic) return [];
+    
+    // ✅ FIX: Додано перевірку comic.comicGenre
+    var rawList = comic.comicGenre || comic.genres || comic.genreIds || [];
+    
+    var ids = rawList.map(function(item) {
+        if (item === null || item === undefined) return null;
+        
+        // Якщо передано просте число ID
+        if (typeof item === 'number') return item;
+        
+        // Якщо це об'єкт
+        if (typeof item === 'object') {
+            if (item.id !== undefined && item.id !== null) return item.id;
+            if (item.genreId !== undefined && item.genreId !== null) return item.genreId;
             
-            var ids = rawList.map(function(item) {
-                if (item === null || item === undefined) return null;
-                if (typeof item === 'number') return item;
-                if (typeof item === 'object') {
-                    if (item.id !== undefined && item.id !== null) return item.id;
-                    if (item.genreId !== undefined && item.genreId !== null) return item.genreId;
-                    if (item.name && ComicState.genres && ComicState.genres.length) {
-                        var found = ComicState.genres.filter(function(g) { return g.name === item.name; })[0];
-                        if (found) return found.id;
-                    }
-                }
-                if (typeof item === 'string' && ComicState.genres && ComicState.genres.length) {
-                    var foundByName = ComicState.genres.filter(function(g) { return g.name === item; })[0];
-                    if (foundByName) return foundByName.id;
-                }
-                return item;
-            });
-
-            return ids
-                .map(function(id) { return parseInt(id, 10); })
-                .filter(function(id) { return !isNaN(id); })
-                .filter(function(v, i, a) { return a.indexOf(v) === i; });
+            // ✅ FIX: Пошук ID за назвою з comic.comicGenre ({ name: "Drama", timeAssigmant: "..." })
+            if (item.name && ComicState.genres && ComicState.genres.length) {
+                var found = ComicState.genres.filter(function(g) { return g.name === item.name; })[0];
+                if (found) return found.id;
+            }
         }
+        
+        // Якщо назва передана рядком
+        if (typeof item === 'string' && ComicState.genres && ComicState.genres.length) {
+            var foundByName = ComicState.genres.filter(function(g) { return g.name === item; })[0];
+            if (foundByName) return foundByName.id;
+        }
+        
+        return item;
+    });
+
+    return ids
+        .map(function(id) { return parseInt(id, 10); })
+        .filter(function(id) { return !isNaN(id) && id !== null; })
+        .filter(function(v, i, a) { return a.indexOf(v) === i; });
+}
 
         $scope.$on('comic:selected', function(evt, comic) {
             $scope.generalCurrentPage = 0;
