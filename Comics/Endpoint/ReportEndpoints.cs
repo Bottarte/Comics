@@ -38,7 +38,7 @@ namespace Comics.Endpoint
 
         const string path = "api/report";
 
-        public static void MapComicsEndpoints(WebApplication app)
+        public static void MapReportsEndpoints(WebApplication app)
         {
             var group = app.MapGroup(path);
             group.MapGet("", GetFirstReport);
