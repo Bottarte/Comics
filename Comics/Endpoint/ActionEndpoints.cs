@@ -10,7 +10,7 @@ namespace Comics.Endpoint
             try
             {
                 await db.Database.ExecuteSqlInterpolatedAsync($@"
-                    EXEC ExecuteBestsellerLogic @MinPages = {minPages}
+                    EXEC BestsellerLogic @MinPages = {minPages}
                 ");
 
                 return Results.Ok(new { message = $"Бестселери оновлено (мінімум сторінок: {minPages})." });
